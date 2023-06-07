@@ -378,7 +378,7 @@ QByteArray QRSAEncryption::decode(const QByteArray &rawData, const QByteArray &p
 QByteArray QRSAEncryption::signMessage(QByteArray rawData, const QByteArray &privKey, const BlockSize blockSizeMode) {
 
     QByteArray hash = QCryptographicHash::hash(rawData, HashAlgorithm::Sha256);
-
+    qDebug() << "hash11: " << hash.toHex();
     QByteArray signature = encode(hash, privKey, blockSizeMode);
 
     rawData.append(QString(SIGN_MARKER + signature.toHex() + SIGN_MARKER).toLatin1());
@@ -415,11 +415,11 @@ QByteArray QRSAEncryption::signMessageJava(QByteArray rawData, const QByteArray 
     // Padded
     QString paddedHexString ="0001ffffffffffffffffffff00";
     QByteArray padded = QByteArray::fromHex(paddedHexString.toUtf8());
-    qDebug() << "padded: " << QString(padded.toHex());
+    qDebug() << "padded: " << QString(padded.toHex()) << " len: " << padded.length();
 
     digestOID.append(hash);
     padded.append(digestOID);
-    qDebug() << "encode: " << QString(padded.toHex());
+    qDebug() << "encode: " << QString(padded.toHex()) << " len: " << padded.length();
 
     QByteArray signature = encode(padded, privKey, blockSizeMode);
     qDebug() << "signature: " << QString(signature.toHex());
@@ -434,6 +434,21 @@ bool QRSAEncryption::checkSignMessageJava(const QByteArray &message, const QByte
 
     // hash, that was decrypt from recieved signature
     QByteArray recievedHash = decode(rawData, pubKey, blockSizeMode);
+
+    // if recievedHash == hashAlgorithm(recived message), then signed message is valid
+    return recievedHash.mid(signStartPos) == QCryptographicHash::hash(message, HashAlgorithm::Sha256);
+}
+
+bool QRSAEncryption::checkSignMessagePKCS15(const QByteArray &message, const QByteArray &hashData, const QByteArray &pubKey, const BlockSize blockSizeMode) {
+    // start position of SIGN_MARKER in rawData
+    auto signStartPos = hashData.length() - 32 - 1; // 224
+    qDebug() << "signStartPos: " << signStartPos;
+
+    // hash, that was decrypt from recieved signature
+    QByteArray recievedHash = decode(hashData, pubKey, blockSizeMode);
+    qDebug() << "recievedHash: " << QString(recievedHash.toHex());
+
+    qDebug() << "hash32: " << QString(recievedHash.mid(signStartPos).toHex()) << " len: " << recievedHash.mid(signStartPos).length();
 
     // if recievedHash == hashAlgorithm(recived message), then signed message is valid
     return recievedHash.mid(signStartPos) == QCryptographicHash::hash(message, HashAlgorithm::Sha256);

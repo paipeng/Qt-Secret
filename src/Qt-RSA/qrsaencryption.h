@@ -236,6 +236,8 @@ To ensure reliable protection, it is recommended to use an exponent size of at l
     QByteArray signMessageJava(QByteArray rawData, const QByteArray &privKey, const BlockSize blockSizeMode = BlockSize::OneByte);
     bool checkSignMessageJava(const QByteArray &message, const QByteArray &rawData, const QByteArray &pubKey, const BlockSize blockSizeMode = BlockSize::OneByte);
 
+    bool checkSignMessagePKCS15(const QByteArray &message, const QByteArray &rawData, const QByteArray &pubKey, const BlockSize blockSizeMode = BlockSize::OneByte);
+
     /**
      * @brief getRsa
      * @return the Rsa type of class
