@@ -441,7 +441,7 @@ bool QRSAEncryption::checkSignMessageJava(const QByteArray &message, const QByte
 
 bool QRSAEncryption::checkSignMessagePKCS15(const QByteArray &message, const QByteArray &hashData, const QByteArray &pubKey, const BlockSize blockSizeMode) {
     // start position of SIGN_MARKER in rawData
-    auto signStartPos = hashData.length() - 32 - 1; // 224
+    auto signStartPos = hashData.length() - 64 - 1; // 224
     qDebug() << "signStartPos: " << signStartPos;
 
     // hash, that was decrypt from recieved signature
@@ -449,7 +449,7 @@ bool QRSAEncryption::checkSignMessagePKCS15(const QByteArray &message, const QBy
     qDebug() << "recievedHash: " << QString(recievedHash.toHex());
 
     qDebug() << "hash32: " << QString(recievedHash.mid(signStartPos).toHex()) << " len: " << recievedHash.mid(signStartPos).length();
-    QByteArray hash = QCryptographicHash::hash(message, HashAlgorithm::Sha256);
+    QByteArray hash = QCryptographicHash::hash(message, HashAlgorithm::Sha512);
     qDebug() << "hash: " << QString(hash.toHex()) << " len: " << hash.length();
     // if recievedHash == hashAlgorithm(recived message), then signed message is valid
     return recievedHash.mid(signStartPos) == hash;
