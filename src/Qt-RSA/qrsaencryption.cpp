@@ -449,9 +449,10 @@ bool QRSAEncryption::checkSignMessagePKCS15(const QByteArray &message, const QBy
     qDebug() << "recievedHash: " << QString(recievedHash.toHex());
 
     qDebug() << "hash32: " << QString(recievedHash.mid(signStartPos).toHex()) << " len: " << recievedHash.mid(signStartPos).length();
-
+    QByteArray hash = QCryptographicHash::hash(message, HashAlgorithm::Sha256);
+    qDebug() << "hash: " << QString(hash.toHex()) << " len: " << hash.length();
     // if recievedHash == hashAlgorithm(recived message), then signed message is valid
-    return recievedHash.mid(signStartPos) == QCryptographicHash::hash(message, HashAlgorithm::Sha256);
+    return recievedHash.mid(signStartPos) == hash;
 }
 
 bool QRSAEncryption::save(const QString &file, const QByteArray& key) {
